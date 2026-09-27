@@ -115,6 +115,7 @@ def test_agent_command_denies_by_default_and_never_allows_push():
     command = responder.agent_command()
     assert command[command.index("--permission-mode") + 1] == "dontAsk"
     assert "Bash(git push:*)" in command
+    assert command[command.index("--tools") + 1] == "Read,Grep,Glob,Edit,Write,Bash"
     assert not any(tool.startswith("Bash(git push") for tool in responder.ALLOWED_TOOLS)
 
 

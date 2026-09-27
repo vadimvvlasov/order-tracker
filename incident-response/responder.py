@@ -65,6 +65,8 @@ ALLOWED_TOOLS = [
     "Bash(git diff:*)",
     "Bash(git log:*)",
 ]
+# The only built-in tools the agent session has at all (no subagents, schedulers, web).
+AVAILABLE_TOOLS = "Read,Grep,Glob,Edit,Write,Bash"
 DISALLOWED_TOOLS = [
     "WebFetch",
     "WebSearch",
@@ -174,6 +176,7 @@ def agent_command() -> list[str]:
         "--setting-sources", "project",
         "--strict-mcp-config",
         "--max-budget-usd", AGENT_MAX_BUDGET_USD,
+        "--tools", AVAILABLE_TOOLS,
         "--allowedTools", *ALLOWED_TOOLS,
         "--disallowedTools", *DISALLOWED_TOOLS,
     ]
