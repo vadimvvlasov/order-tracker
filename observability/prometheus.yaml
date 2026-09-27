@@ -1,0 +1,21 @@
+# Metrics arrive by OTLP push from the Collector (--web.enable-otlp-receiver),
+# so there are no scrape targets besides Prometheus itself.
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+otlp:
+  # Keep the deployed version on every series: "which release caused this?"
+  promote_resource_attributes:
+    - service.name
+    - service.version
+    - deployment.environment.name
+
+storage:
+  tsdb:
+    out_of_order_time_window: 10m
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]

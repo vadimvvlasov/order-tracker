@@ -1,0 +1,49 @@
+# OpenTelemetry Collector: one OTLP entry point, three backends.
+# metrics -> Prometheus (OTLP receiver), logs -> Loki (native OTLP), traces -> Tempo.
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 256
+  # Defense in depth: the app never sends these, but if a future change does,
+  # they are dropped here before reaching storage.
+  attributes/redact:
+    actions:
+      - { key: http.request.header.authorization, action: delete }
+      - { key: http.request.header.cookie, action: delete }
+      - { key: order.customer, action: delete }
+      - { key: customer, action: delete }
+  batch:
+    timeout: 2s
+
+exporters:
+  otlp_http/prometheus:
+    endpoint: http://prometheus:9090/api/v1/otlp
+  otlp_http/loki:
+    endpoint: http://loki:3100/otlp
+  otlp_grpc/tempo:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+
+service:
+  pipelines:
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlp_http/prometheus]
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, attributes/redact, batch]
+      exporters: [otlp_http/loki]
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, attributes/redact, batch]
+      exporters: [otlp_grpc/tempo]
