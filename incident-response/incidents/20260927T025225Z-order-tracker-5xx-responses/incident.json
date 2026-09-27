@@ -1,0 +1,131 @@
+{
+  "id": "20260927T025225Z-order-tracker-5xx-responses",
+  "status": "recovered",
+  "created_at": "2026-09-27T02:52:25+00:00",
+  "alert": {
+    "name": "Order Tracker 5xx responses",
+    "status": "firing",
+    "labels": {
+      "alertname": "Order Tracker 5xx responses",
+      "grafana_folder": "Order Tracker",
+      "http_route": "/api/orders/{order_id}",
+      "service": "order-tracker",
+      "severity": "page"
+    },
+    "annotations": {
+      "dashboard_url": "http://localhost:3000/d/order-tracker/order-tracker?from=now-15m&to=now",
+      "description": "About 1.5 request(s) to /api/orders/{order_id} returned a 5xx status in the last 5 minutes.",
+      "endpoint": "/api/orders/{order_id}",
+      "query": "sum by (http_route) (increase(order_tracker_http_requests_total{http_response_status_code=~\"5..\"}[5m]))",
+      "runbook": "incident-response/responder-task.md",
+      "summary": "Users get 5xx responses from GET /api/orders/{order_id}",
+      "window": "5m"
+    },
+    "endpoint": "/api/orders/{order_id}",
+    "fingerprint": "2afe71b9989c61cb",
+    "starts_at": "2026-09-27T02:52:20Z",
+    "generator_url": "http://localhost:3000/alerting/grafana/order-tracker-5xx/view?orgId=1",
+    "dashboard_url": "http://localhost:3000/d/order-tracker?from=1790473940000&orgId=1&to=1790477545010",
+    "is_test": false
+  },
+  "timeline": [
+    {
+      "at": "2026-09-27T02:52:25+00:00",
+      "status": "received",
+      "note": "firing alert Order Tracker 5xx responses for /api/orders/{order_id}"
+    },
+    {
+      "at": "2026-09-27T02:52:25+00:00",
+      "status": "evidence_collected",
+      "note": "3 error logs, 1 error traces, failing paths ['/api/orders/express-1002']"
+    },
+    {
+      "at": "2026-09-27T02:52:25+00:00",
+      "status": "agent_running",
+      "note": "claude headless, allowlist of 11 tools"
+    },
+    {
+      "at": "2026-09-27T02:53:07+00:00",
+      "status": "agent_done",
+      "note": "action=fixed exit=0"
+    },
+    {
+      "at": "2026-09-27T02:53:07+00:00",
+      "status": "recovered",
+      "note": "failing paths no longer return 5xx; fix awaits human review"
+    }
+  ],
+  "deployed_versions": [
+    "dev"
+  ],
+  "agent": {
+    "command": [
+      "claude",
+      "-p",
+      "--output-format",
+      "stream-json",
+      "--verbose",
+      "--permission-mode",
+      "dontAsk",
+      "--setting-sources",
+      "project",
+      "--strict-mcp-config",
+      "--max-budget-usd",
+      "3",
+      "--tools",
+      "Read,Grep,Glob,Edit,Write,Bash",
+      "--allowedTools",
+      "Read",
+      "Grep",
+      "Glob",
+      "Edit(./app/**)",
+      "Edit(./tests/**)",
+      "Bash(uv run --frozen pytest:*)",
+      "Bash(incident-response/runbooks/redeploy.sh)",
+      "Bash(incident-response/runbooks/verify-recovery.sh:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "--disallowedTools",
+      "WebFetch",
+      "WebSearch",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git reset:*)",
+      "Bash(git checkout:*)"
+    ],
+    "exit_code": 0,
+    "timed_out": false,
+    "duration_s": 42.5,
+    "model": "claude-opus-5-5",
+    "permission_mode": "dontAsk",
+    "tools": [
+      "Bash",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "num_turns": 10,
+    "cost_usd": 0.1931214,
+    "is_error": false,
+    "permission_denials": [],
+    "answer": {
+      "root_cause": "order_detail computed express delivery with placed_at.replace(day=placed_at.day + 2), which raises ValueError for orders placed in the last two days of a month (seeded express-1002 is dated at the previous month's end).",
+      "fix": "app/main.py - use placed_at + timedelta(days=2); tests/test_api.py - added month-end express regression test and seeded express-1002 endpoint test",
+      "incident": "20260927T025225Z-order-tracker-5xx-responses",
+      "verification": "uv run --frozen pytest -q -> 28 passed; incident-response/runbooks/redeploy.sh -> container healthy; incident-response/runbooks/verify-recovery.sh /api/orders/express-1002 -> 3/3 200, RECOVERED",
+      "action": "fixed",
+      "result": "Fixed month-end date overflow in express delivery estimate; GET /api/orders/{order_id} recovered, diff awaiting human review.",
+      "last_line": "RESULT: Fixed month-end date overflow in express delivery estimate; GET /api/orders/{order_id} recovered, diff awaiting human review."
+    }
+  },
+  "verification": {
+    "paths": [
+      "/api/orders/express-1002"
+    ],
+    "exit_code": 0,
+    "output": "attempt 1 GET /api/orders/express-1002 -> 200\nattempt 2 GET /api/orders/express-1002 -> 200\nattempt 3 GET /api/orders/express-1002 -> 200\nRECOVERED\n"
+  }
+}
