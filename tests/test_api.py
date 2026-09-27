@@ -31,5 +31,20 @@ def test_create_and_update_order(client):
     assert updated.json()["status"] == "shipped"
 
 
+def test_express_order_placed_at_month_end():
+    row = {
+        "id": "express-1", "customer": "Sam", "item": "Headphones",
+        "priority": "express", "status": "preparing",
+        "created_at": "2026-08-31T12:00:00+00:00",
+    }
+    assert main.order_detail(row)["estimated_delivery"] == "2026-09-02"
+
+
+def test_seeded_express_order(client):
+    response = client.get("/api/orders/express-1002")
+    assert response.status_code == 200
+    assert "estimated_delivery" in response.json()
+
+
 def test_missing_order(client):
     assert client.get("/api/orders/missing").status_code == 404
