@@ -1,0 +1,39 @@
+diff --git a/app/telemetry.py b/app/telemetry.py
+index 9c4d366..394be42 100644
+--- a/app/telemetry.py
++++ b/app/telemetry.py
+@@ -8,8 +8,9 @@ TELEMETRY_EXPORTER selects where the signals go:
+   ``OTEL_EXPORTER_OTLP_ENDPOINT`` (standard OTel variable).
+ - ``none``: install nothing; tests set up their own in-memory providers.
+ 
+-Only low-cardinality, non-sensitive attributes are recorded: the route
+-template (never the raw path), method, status code, and order id/priority.
++Metrics carry only low-cardinality attributes: route template (never the raw
++path), method, and status code. Spans and logs add the concrete path and the
++order id/priority.
+ Customer names, items, headers, and request bodies are never exported.
+ """
+ 
+@@ -145,12 +146,17 @@ def instrument_requests(app: FastAPI) -> None:
+                     "http.response.status_code": status_code,
+                 }
+                 span.update_name(f"{request.method} {route}")
+-                span.set_attributes(attributes)
++                # The concrete path goes on spans and logs only; metrics keep the template.
++                span.set_attributes({**attributes, "url.path": request.url.path})
+                 if status_code >= 500:
+                     span.set_status(Status(StatusCode.ERROR))
+                 request_counter.add(1, attributes)
+                 request_duration.record(time.perf_counter() - started, attributes)
+-                log_extra = {**attributes, "duration_ms": round((time.perf_counter() - started) * 1000, 1)}
++                log_extra = {
++                    **attributes,
++                    "url.path": request.url.path,
++                    "duration_ms": round((time.perf_counter() - started) * 1000, 1),
++                }
+                 if error is not None:
+                     logger.error("request failed", exc_info=error, extra=log_extra)
+                 else:
+
+# untracked:
+tests/test_responder.py

@@ -1,0 +1,32 @@
+{
+  "endpoint": null,
+  "window_seconds": 900,
+  "request_counts": [
+    {
+      "http_response_status_code": "200",
+      "http_route": "/",
+      "service_version": "dev",
+      "requests": 0.0
+    },
+    {
+      "http_response_status_code": "200",
+      "http_route": "/api/orders",
+      "service_version": "dev",
+      "requests": 0.0
+    }
+  ],
+  "deployed_versions": [
+    "dev"
+  ],
+  "error_logs": [],
+  "error_traces": [],
+  "failing_paths": [],
+  "recent_commits": [
+    "43e115a 2026-09-27T07:02:32+05:00 feat(alerting): add Grafana alert for 5xx responses per endpoint",
+    "a060a4b 2026-09-27T06:53:57+05:00 feat(observability): add Collector, Prometheus, Loki, Tempo, and Grafana",
+    "ff1a0c1 2026-09-27T06:48:22+05:00 feat(telemetry): add OpenTelemetry metrics, traces, and logs for order lookups",
+    "72de447 2026-09-25T18:46:35+02:00 Simplify local Compose startup",
+    "9f61e92 2026-09-25T11:17:44+02:00 Add order tracker starter"
+  ],
+  "errors": {}
+}

@@ -1,0 +1,133 @@
+{
+  "id": "20260927T024543Z-respondertest",
+  "status": "closed",
+  "created_at": "2026-09-27T02:45:43+00:00",
+  "alert": {
+    "name": "ResponderTest",
+    "status": "firing",
+    "labels": {
+      "alertname": "ResponderTest",
+      "test": "true"
+    },
+    "annotations": {
+      "summary": "Test notification; no incident to fix"
+    },
+    "endpoint": null,
+    "fingerprint": null,
+    "starts_at": null,
+    "generator_url": null,
+    "dashboard_url": null,
+    "is_test": true
+  },
+  "timeline": [
+    {
+      "at": "2026-09-27T02:45:43+00:00",
+      "status": "received",
+      "note": "firing alert ResponderTest for no endpoint"
+    },
+    {
+      "at": "2026-09-27T02:45:43+00:00",
+      "status": "evidence_collected",
+      "note": "0 error logs, 0 error traces, failing paths none"
+    },
+    {
+      "at": "2026-09-27T02:45:43+00:00",
+      "status": "agent_running",
+      "note": "claude headless, allowlist of 11 tools"
+    },
+    {
+      "at": "2026-09-27T02:45:50+00:00",
+      "status": "agent_done",
+      "note": "action=none exit=0"
+    },
+    {
+      "at": "2026-09-27T02:45:50+00:00",
+      "status": "closed",
+      "note": "agent found nothing to fix"
+    }
+  ],
+  "deployed_versions": [
+    "dev"
+  ],
+  "agent": {
+    "command": [
+      "claude",
+      "-p",
+      "--output-format",
+      "stream-json",
+      "--verbose",
+      "--permission-mode",
+      "dontAsk",
+      "--setting-sources",
+      "project",
+      "--strict-mcp-config",
+      "--max-budget-usd",
+      "3",
+      "--allowedTools",
+      "Read",
+      "Grep",
+      "Glob",
+      "Edit(./app/**)",
+      "Edit(./tests/**)",
+      "Bash(uv run --frozen pytest:*)",
+      "Bash(incident-response/runbooks/redeploy.sh)",
+      "Bash(incident-response/runbooks/verify-recovery.sh:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "--disallowedTools",
+      "WebFetch",
+      "WebSearch",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git reset:*)",
+      "Bash(git checkout:*)"
+    ],
+    "exit_code": 0,
+    "timed_out": false,
+    "duration_s": 7.4,
+    "model": "claude-opus-5-5",
+    "permission_mode": "dontAsk",
+    "tools": [
+      "Task",
+      "Bash",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "DesignSync",
+      "Edit",
+      "EnterWorktree",
+      "ExitWorktree",
+      "Glob",
+      "Grep",
+      "ListAgents",
+      "Monitor",
+      "NotebookEdit",
+      "PushNotification",
+      "Read",
+      "RemoteTrigger",
+      "ReportFindings",
+      "ScheduleWakeup",
+      "SendMessage",
+      "ShareOnboardingGuide",
+      "Skill",
+      "TaskStop",
+      "ToolSearch",
+      "Workflow",
+      "Write"
+    ],
+    "num_turns": 1,
+    "cost_usd": 0.0493404,
+    "is_error": false,
+    "permission_denials": [],
+    "answer": {
+      "incident": "20260927T024543Z-respondertest",
+      "root_cause": "None, this is a test notification (label test=true), not a real incident.",
+      "fix": "none",
+      "verification": "not run",
+      "action": "none",
+      "result": "ResponderTest test notification received; no action taken.",
+      "last_line": "RESULT: ResponderTest test notification received; no action taken."
+    }
+  }
+}
