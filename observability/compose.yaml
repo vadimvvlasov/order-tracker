@@ -21,6 +21,7 @@ services:
       - --storage.tsdb.path=/prometheus
       - --storage.tsdb.retention.time=2d
       - --web.enable-otlp-receiver
+      - --enable-feature=created-timestamp-zero-ingestion
     volumes:
       - ./prometheus.yaml:/etc/prometheus/prometheus.yaml:ro
       - prometheus-data:/prometheus
@@ -65,6 +66,7 @@ services:
       - ./grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
       - ./grafana-dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml:ro
       - ./dashboard.json:/etc/grafana/dashboards/order-tracker.json:ro
+      - ./alerts.yaml:/etc/grafana/provisioning/alerting/alerts.yaml:ro
     ports:
       - "127.0.0.1:${GRAFANA_PORT:-3000}:3000"
     depends_on:

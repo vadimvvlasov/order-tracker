@@ -1,0 +1,59 @@
+# Grafana-managed alert: users are getting server errors.
+# One alert instance per route template (http_route), so the payload names the endpoint.
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: order-tracker-user-impact
+    folder: Order Tracker
+    interval: 10s
+    rules:
+      - uid: order-tracker-5xx
+        title: Order Tracker 5xx responses
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              # Needs Prometheus --enable-feature=created-timestamp-zero-ingestion:
+              # without a zero sample at series start, increase() of a brand-new
+              # 5xx series is 0 and the first failing request never alerts.
+              expr: >-
+                sum by (http_route) (
+                  increase(order_tracker_http_requests_total{service_name="order-tracker", http_response_status_code=~"5.."}[5m])
+                )
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+        # No 5xx series in the window means no server errors: that is healthy, not unknown.
+        noDataState: OK
+        execErrState: Error
+        for: 0s
+        labels:
+          severity: page
+          service: order-tracker
+        annotations:
+          summary: "Users get 5xx responses from GET {{ $labels.http_route }}"
+          description: >-
+            About {{ humanize $values.A.Value }} request(s) to {{ $labels.http_route }}
+            returned a 5xx status in the last 5 minutes.
+          endpoint: "{{ $labels.http_route }}"
+          window: 5m
+          query: >-
+            sum by (http_route) (increase(order_tracker_http_requests_total{http_response_status_code=~"5.."}[5m]))
+          dashboard_url: http://localhost:3000/d/order-tracker/order-tracker?from=now-15m&to=now
+          runbook: incident-response/responder-task.md
+          __dashboardUid__: order-tracker
+          __panelId__: "6"
