@@ -69,6 +69,8 @@ services:
       - ./alerts.yaml:/etc/grafana/provisioning/alerting/alerts.yaml:ro
     ports:
       - "127.0.0.1:${GRAFANA_PORT:-3000}:3000"
+    extra_hosts:
+      - host.docker.internal:host-gateway
     depends_on:
       - prometheus
       - loki

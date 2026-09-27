@@ -57,3 +57,25 @@ groups:
           runbook: incident-response/responder-task.md
           __dashboardUid__: order-tracker
           __panelId__: "6"
+
+# Question 6: every alert goes to the incident responder on the host.
+# host.docker.internal resolves to the docker0 address (see grafana extra_hosts),
+# where the responder listens next to 127.0.0.1.
+contactPoints:
+  - orgId: 1
+    name: incident-responder
+    receivers:
+      - uid: incident-responder-webhook
+        type: webhook
+        disableResolveMessage: false
+        settings:
+          url: http://host.docker.internal:8001/alerts
+          httpMethod: POST
+
+policies:
+  - orgId: 1
+    receiver: incident-responder
+    group_by: [grafana_folder, alertname, http_route]
+    group_wait: 5s
+    group_interval: 1m
+    repeat_interval: 4h
